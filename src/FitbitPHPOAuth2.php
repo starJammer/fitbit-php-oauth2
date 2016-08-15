@@ -1174,6 +1174,7 @@ class FitbitPHPOAuth2 implements EventEmitterInterface {
     public function setHttpClient(HttpClientInterface $client)
     {
         $this->httpClient = $client;
+        $this->provider = $this->createProvider();
         return $this;
     }
 
