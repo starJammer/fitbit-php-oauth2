@@ -790,6 +790,7 @@ class FitbitPHPOAuth2 implements EventEmitterInterface {
      *            'activityCalories',
      *
      *            'tracker_caloriesOut', 'tracker_steps', 'tracker_distance', 'tracker_floors', 'tracker_elevation'
+     *            'tracker_minutesVeryActive'
      *
      *            'startTime', 'timeInBed', 'minutesAsleep', 'minutesAwake', 'awakeningsCount',
      *            'minutesToFallAsleep', 'minutesAfterWakeup',
@@ -867,6 +868,9 @@ class FitbitPHPOAuth2 implements EventEmitterInterface {
                 break;
             case 'tracker_activeScore':
                 $path = 'activities/tracker/activeScore';
+                break;
+            case 'tracker_minutesVeryActive':
+                $path = 'activities/tracker/minutesVeryActive';
                 break;
 
             case 'startTime':
