@@ -6,6 +6,7 @@ use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessToken;
 use Sabre\Event\EventEmitterInterface;
 use Sabre\Event\EventEmitterTrait;
+use GuzzleHttp\ClientInterface as HttpClientInterface;
 
 /**
  * Fitbit PHP Oauth2 v.1.0.0 Basic Fitbit API wrapper for PHP using OAuth
@@ -48,6 +49,11 @@ class FitbitPHPOAuth2 implements EventEmitterInterface {
      * @var AccessToken
      */
     protected $access_token;
+
+    /**
+     * @var HttpClientInterface
+     */
+    protected $httpClient;
 
     protected $metric = true;
     protected $user_agent = 'FitbitPHPOauth2 1.0.0';
@@ -1137,13 +1143,47 @@ class FitbitPHPOAuth2 implements EventEmitterInterface {
      * @return FitbitProvider
      */
     private function createProvider() {
+
+        $client = $this->getHttpClient();
+        $collaborators = [];
+
+        if (!empty($client)) {
+            $collaborators['httpClient'] = $client;
+        }
+
         $provider = new FitbitProvider([
             'clientId' => $this->client_id,
             'clientSecret' => $this->client_secret,
             'redirectUri' => $this->redirect_uri,
-        ]);
+        ], $collaborators);
         $provider->setScope($this->scope);
         return $provider;
+    }
+
+    /**
+     * Lets you set your own http client in the case that you want
+     * to circumvent SSL verification or anything else.
+     *
+     * setHttpClient(new HttpClient([
+     *      'verify' => false
+     * ]);
+     *
+     * @param HttpClientInterface $client
+     * @return $this
+     */
+    public function setHttpClient(HttpClientInterface $client)
+    {
+        $this->httpClient = $client;
+        $this->provider = $this->createProvider();
+        return $this;
+    }
+
+    /**
+     * @return HttpClientInterface
+     */
+    protected function getHttpClient()
+    {
+        return $this->httpClient;
     }
 
     /**
