@@ -125,6 +125,33 @@ class FitbitPHPOAuth2 implements EventEmitterInterface {
     }
 
     /**
+     * Revokes the current access token the user
+     * has.
+     *
+     * @return mixed
+     */
+    public function revokeToken()
+    {
+        $this->getOrRefreshTokenIfMissingOrExpired();
+        $path = FitbitProvider::BASE_FITBIT_API_URL . '/oauth2/revoke?' . http_build_query(['token' => $this->access_token->getToken()]);
+
+        $headers = [
+            'Authorization' => 'Basic ' . base64_encode("{$this->client_id}:{$this->client_secret}")
+        ];
+
+        $request = $this->provider->getAuthenticatedRequest(
+            'post',
+            $path,
+            null,
+            [
+                'headers' => $headers
+            ]
+        );
+
+        return $this->processRequest($request);
+    }
+
+    /**
      * @return string Actual access token - does not include refresh or expiry
      * @throws FitbitTokenMissingException
      */
@@ -1110,11 +1137,21 @@ class FitbitPHPOAuth2 implements EventEmitterInterface {
     /**
      * Get list of user's subscriptions for this application
      *
+     * You must have the correct scope in order to access
+     * the given path. If you use null as a path, you should
+     * have all possible scopes.
+     *
+     * Best to provide a $path to be safe.
+     *
      * @throws FitbitException
      * @return mixed
      */
-    public function getSubscriptions() {
-        return $this->read("user/-/apiSubscriptions");
+    public function getSubscriptions($path = null) {
+        if (is_null($path)) {
+            return $this->read("user/-/apiSubscriptions");
+        }
+
+        return $this->read("user/-/$path/apiSubscriptions");
     }
 
 
